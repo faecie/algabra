@@ -1,0 +1,4 @@
+[run]
+source = algabra
+omit = tests/*
+branch = True
