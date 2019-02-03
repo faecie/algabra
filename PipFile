@@ -10,7 +10,7 @@ pylint = "*"
 pylint = "*"
 coverage = "*"
 pytest = "*"
-annotations = "*"
+scipy = "*"
 
 [requires]
 python_version = "3.7"
