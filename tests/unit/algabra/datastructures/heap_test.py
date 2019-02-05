@@ -42,7 +42,7 @@ class HeapTestCase(unittest.TestCase):
         max_heap = my_heap.MaxHeap(
             random.sample(list(range(items_count)), items_count))
 
-        max_heap.promote_key(93, 60)
+        max_heap.promote_key(93, 90)
         assert max_heap.extract_highest() == 99
 
         max_heap.promote_key(11, 100)
@@ -53,7 +53,7 @@ class HeapTestCase(unittest.TestCase):
         min_heap = my_heap.MinHeap(
             random.sample(list(range(items_count)), items_count))
 
-        min_heap.promote_key(85, 28)
+        min_heap.promote_key(85, 9)
         assert min_heap.extract_highest() == 0
 
         min_heap.promote_key(66, -1)

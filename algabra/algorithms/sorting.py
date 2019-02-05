@@ -10,11 +10,16 @@ class SortInterface(abc.ABC):
     def sort(items: typing.MutableSequence):
         pass
 
+
 class InsertionSort(SortInterface):
 
     @staticmethod
     def sort(items: typing.MutableSequence):
-        for item_index in range(1, len(items)):
+        InsertionSort._sort(items, 0, len(items))
+
+    @staticmethod
+    def _sort(items: typing.MutableSequence, start: int, stop: int) -> None:
+        for item_index in range(start + 1, stop):
             item = items[item_index]
 
             prev_item_index = item_index - 1
@@ -58,3 +63,33 @@ class QuickSort(SortInterface):
         items[pivot + 1], items[last] = items[last], items[pivot + 1]
 
         return pivot + 1
+
+
+class QuickWithInsertionSort(QuickSort):
+    _INSERTION_SORT_BORDER = 30
+
+    @staticmethod
+    def sort(items: typing.MutableSequence):
+        first_last_stack = [(0, len(items) - 1)]
+
+        while first_last_stack:
+            first, last = first_last_stack.pop()
+
+            elements_count = last - first
+            is_easy = QuickWithInsertionSort._is_insertion_sort(elements_count)
+
+            if is_easy:
+                InsertionSort._sort(items, first, last + 1)
+                pivot = last
+            else:
+                pivot = QuickSort._partition(items, first, last)
+
+            if pivot + 1 < last:
+                first_last_stack.append((pivot + 1, last))
+
+            if pivot - 1 > first and not is_easy:
+                first_last_stack.append((first, pivot - 1))
+
+    @staticmethod
+    def _is_insertion_sort(elements_count: int) -> bool:
+        return elements_count <= QuickWithInsertionSort._INSERTION_SORT_BORDER

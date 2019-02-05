@@ -1,15 +1,14 @@
-import random
-import unittest
 import abc
+import random
 import typing
+import unittest
 
 import algabra.algorithms.sorting as sorting
 
 
 class BaseSortingTests(abc.ABC):
 
-    def test_sorting(self) -> None:
-        items_count = 100
+    def test_sorting(self, items_count: int = 100) -> None:
         items = random.sample(list(range(items_count)), items_count)
         self._sort(items)
 
@@ -27,8 +26,7 @@ class BaseSortingTests(abc.ABC):
 
         assert not items
 
-    def test_sorting_sorted_list(self) -> None:
-        items_count = 100
+    def test_sorting_sorted_list(self, items_count: int = 100) -> None:
         items = list(range(items_count))
         target_items = list(items)
 
@@ -51,6 +49,12 @@ class InsertionSortTestCase(BaseSortingTests, unittest.TestCase):
 
     def _sort(self, items: typing.MutableSequence) -> None:
         sorting.InsertionSort.sort(items)
+
+
+class QuickInsertionSortTestCase(BaseSortingTests, unittest.TestCase):
+
+    def _sort(self, items: typing.MutableSequence) -> None:
+        sorting.QuickWithInsertionSort.sort(items)
 
 
 if __name__ == '__main__':
