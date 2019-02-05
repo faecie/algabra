@@ -7,8 +7,22 @@ class SortInterface(abc.ABC):
 
     @staticmethod
     @abc.abstractmethod
-    def sort(elements: typing.MutableSequence):
+    def sort(items: typing.MutableSequence):
         pass
+
+class InsertionSort(SortInterface):
+
+    @staticmethod
+    def sort(items: typing.MutableSequence):
+        for item_index in range(1, len(items)):
+            item = items[item_index]
+
+            prev_item_index = item_index - 1
+            while prev_item_index >= 0 and items[prev_item_index] > item:
+                items[prev_item_index + 1] = items[prev_item_index]
+                prev_item_index -= 1
+
+            items[prev_item_index + 1] = item
 
 
 class QuickSort(SortInterface):
