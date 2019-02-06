@@ -1,4 +1,5 @@
 import abc
+import math
 import random
 import typing
 
@@ -93,3 +94,40 @@ class QuickWithInsertionSort(QuickSort):
     @staticmethod
     def _is_insertion_sort(elements_count: int) -> bool:
         return elements_count <= QuickWithInsertionSort._INSERTION_SORT_BORDER
+
+
+class MergeSort(SortInterface):
+
+    @staticmethod
+    def sort(items: typing.MutableSequence):
+        MergeSort._sort(items, 0, len(items) - 1)
+
+    @staticmethod
+    def _sort(items: typing.MutableSequence, start: int, stop: int):
+        if stop - start < 1:
+            return
+
+        mid = stop - math.floor((stop - start) / 2)
+        MergeSort._sort(items, start, mid - 1)
+        MergeSort._sort(items, mid, stop)
+
+        if items[mid] < items[mid - 1]:
+            MergeSort._merge(items, start, mid, stop)
+
+    @staticmethod
+    def _merge(items: typing.MutableSequence, start: int, mid: int,
+               stop: int) -> None:
+        sorted_items_sequence = list(range(start, stop + 1))
+        left, right = start, mid
+        for item_ix in range(len(sorted_items_sequence)):
+            left_is_higher = right > stop or items[left] < items[right]
+            if left < mid and left_is_higher:
+                result_item = items[left]
+                left += 1
+            else:
+                result_item = items[right]
+                right += 1
+
+            sorted_items_sequence[item_ix] = result_item
+
+        items[start:stop + 1] = sorted_items_sequence

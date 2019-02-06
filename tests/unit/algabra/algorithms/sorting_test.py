@@ -57,5 +57,11 @@ class QuickInsertionSortTestCase(BaseSortingTests, unittest.TestCase):
         sorting.QuickWithInsertionSort.sort(items)
 
 
+class MergeSortTestCase(BaseSortingTests, unittest.TestCase):
+
+    def _sort(self, items: typing.MutableSequence) -> None:
+        sorting.MergeSort.sort(items)
+
+
 if __name__ == '__main__':
     unittest.main()
