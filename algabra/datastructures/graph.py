@@ -23,14 +23,20 @@ class GraphInterface(abc.ABC):
         pass
 
 
-class AdjacencyListGraph(GraphInterface):
+class AdjacencyListGraph(GraphInterface, typing.Iterable):
     __slots__ = ['_vertices']
 
     def __init__(self) -> None:
         self._vertices = dict()
 
+    def __iter__(self) -> typing.Iterator[Vertex]:
+        for vertex in self._vertices:
+            yield vertex
+
     def add_vertex(self, vertex: Vertex) -> None:
-        self._vertices[vertex.get_key()] = AdjacentVerticesList(vertex)
+        key = vertex.get_key()
+        if key not in self._vertices:
+            self._vertices[key] = AdjacentVerticesList(vertex)
 
     def get_vertex(self, key: int) -> typing.Optional[Vertex]:
         if key in self._vertices:
@@ -45,27 +51,27 @@ class AdjacencyListGraph(GraphInterface):
         vertex_froms_edges.add_adjacent(vertex_to)
 
     def vertex_has_edge_with(self, vertex: Vertex, target: Vertex) -> bool:
-        vertex_edges = self._get_edges(vertex)
+        vertex_edges = self.get_edges(vertex)
 
         if vertex_edges is not None:
             return vertex_edges.has_edge_with(target)
 
         return False
 
-    def _get_edges(self,
-                   vertex: Vertex) -> typing.Optional[AdjacentVerticesList]:
+    def get_edges(self,
+                  vertex: Vertex) -> typing.Optional[AdjacentVerticesList]:
         if vertex.get_key() in self._vertices:
             return self._vertices[vertex.get_key()]
         else:
             return None
 
     def _require_edges(self, vertex: Vertex) -> AdjacentVerticesList:
-        result = self._get_edges(vertex)
+        result = self.get_edges(vertex)
         if result is not None and result.get_vertex() != vertex:
             raise WrongVertexException(vertex)
         if result is None:
             self.add_vertex(vertex)
-            result = self._get_edges(vertex)
+            result = self.get_edges(vertex)
 
         return result
 
@@ -143,10 +149,11 @@ class AdjacentVerticesList(typing.Iterable):
         return self._master_vertex
 
     def add_adjacent(self, vertex: Vertex) -> None:
-        new_edge = Edge(vertex)
-        new_edge._prev, new_edge._next = self._sentinel._prev, self._sentinel
-        self._sentinel._prev._next = new_edge
-        self._sentinel._prev = new_edge
+        if not self.has_edge_with(vertex):
+            new_edge = Edge(vertex)
+            new_edge._prev, new_edge._next = self._sentinel._prev, self._sentinel
+            self._sentinel._prev._next = new_edge
+            self._sentinel._prev = new_edge
 
     def has_edge_with(self, vertex: Vertex) -> bool:
         for edge in self:
