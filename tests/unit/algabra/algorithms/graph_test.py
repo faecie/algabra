@@ -1,7 +1,22 @@
+import typing
 import unittest
 
 import algabra.algorithms.graph as graphsalgs
 import algabra.datastructures.graph as mygraph
+
+
+def _connect_every_vertex(graph: mygraph.GraphInterface,
+                          vertices: typing.List[mygraph.Vertex],
+                          exclusions: typing.List[int] = None) -> None:
+    exclusions = [] if exclusions is None else exclusions
+    for vertex_row in vertices:
+        graph.add_vertex(vertex_row)
+        for vertex_column in vertices:
+            row_excluded = vertex_row.get_key() in exclusions
+            col_excluded = vertex_column.get_key() in exclusions
+            edge_excluded = row_excluded or col_excluded
+            if vertex_row != vertex_column and not edge_excluded:
+                graph.add_edge(vertex_row, vertex_column)
 
 
 class BreadthFirstSearchTestCase(unittest.TestCase):
@@ -11,14 +26,7 @@ class BreadthFirstSearchTestCase(unittest.TestCase):
         vertices_count = 100
         expected_path = [14, 8, 10, 2, 43, 25, 55, 53, 5, 13]
         vertices = [graphsalgs.BFSVertex(key) for key in range(vertices_count)]
-        for vertex_row in vertices:
-            graph.add_vertex(vertex_row)
-            for vertex_column in vertices:
-                row_excluded = vertex_row.get_key() in expected_path
-                col_excluded = vertex_column.get_key() in expected_path
-                edge_excluded = row_excluded or col_excluded
-                if vertex_row != vertex_column and not edge_excluded:
-                    graph.add_edge(vertex_row, vertex_column)
+        _connect_every_vertex(graph, vertices, expected_path)
 
         expected_path[len(expected_path):len(expected_path) + 1] = [19, 3]
         expected_path.reverse()
@@ -60,7 +68,7 @@ class BreadthFirstSearchTestCase(unittest.TestCase):
 
         assert target.is_empty()
 
-    def test_vertex_stack_filo(self) -> None:
+    def test_vertex_stack_lifo(self) -> None:
         expected = [1, 2]
         target = graphsalgs.VertexStack()
         for i in expected:
@@ -71,6 +79,21 @@ class BreadthFirstSearchTestCase(unittest.TestCase):
             assert i == target.pop()._key
 
         assert target.is_empty()
+
+
+class DepthFirstSearchTestCase(unittest.TestCase):
+
+    def test_depth_first_search(self) -> None:
+        graph = mygraph.AdjacencyListGraph()
+        vertices_count = 10
+        vertices = [graphsalgs.DFSVertex(key) for key in range(vertices_count)]
+        _connect_every_vertex(graph, vertices, [3])
+        graphsalgs.depth_first_search(graph)
+
+        assert graph.get_vertex(3).ascendant is None
+        assert graph.get_vertex(5).ascendant is not None
+        assert graph.get_vertex(6).ascendant.begin < graph.get_vertex(2).begin
+        assert graph.get_vertex(6).ascendant.end > graph.get_vertex(2).end
 
 
 if __name__ == '__main__':

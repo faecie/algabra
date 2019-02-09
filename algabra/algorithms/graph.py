@@ -52,50 +52,33 @@ def shortest_path(graph: mygraph.AdjacencyListGraph, start_from: BFSVertex,
     return path
 
 
-class VertexQueue:
-    __slots__ = '_dequeue', '_size'
+def depth_first_search(graph: mygraph.AdjacencyListGraph) -> None:
+    order = 0
+    ascendants = VertexStack()
+    descendants = VertexStack()
 
-    def __init__(self) -> None:
-        self._dequeue = collections.deque()
-        self._size = 0
+    for vertex in graph:
+        if vertex.color == Color.WHITE:
+            descendants.push(vertex)
 
-    def deque(self) -> BFSVertex:
-        result = self._dequeue.popleft()
-        self._size -= 1
+        while not descendants.is_empty():
+            order += 1
+            descendant = descendants.pop()
+            descendant.begin = order
+            descendant.color = Color.GREY
 
-        return result
+            for edge in graph.get_edges(descendant):
+                if edge.get_vertex().color == Color.WHITE:
+                    edge.get_vertex().ascendant = descendant
+                    descendants.push(edge.get_vertex())
 
-    def queue(self, item: BFSVertex) -> None:
-        self._dequeue.append(item)
-        self._size += 1
+            ascendants.push(descendant)
 
-    def is_empty(self) -> bool:
-        return self._size == 0
-
-
-class VertexStack(typing.Iterable):
-    __slots__ = '_dequeue', '_size'
-
-    def __init__(self) -> None:
-        self._dequeue = collections.deque()
-        self._size = 0
-
-    def __iter__(self) -> typing.Iterator[BFSVertex]:
-        while not self.is_empty():
-            yield self.pop()
-
-    def pop(self) -> BFSVertex:
-        result = self._dequeue.pop()
-        self._size -= 1
-
-        return result
-
-    def push(self, item: BFSVertex) -> None:
-        self._dequeue.append(item)
-        self._size += 1
-
-    def is_empty(self) -> bool:
-        return self._size == 0
+        while not ascendants.is_empty():
+            order += 1
+            predecessor = ascendants.pop()
+            predecessor.color = Color.BLACK
+            predecessor.end = order
 
 
 class Color(enum.Enum):
@@ -116,3 +99,68 @@ class BFSVertex(mygraph.Vertex):
         self.predecessor = predecessor
         self.distance = distance
         self.color = color
+
+
+class DFSVertex(mygraph.Vertex):
+    __slots__ = 'color', 'begin', 'end', 'ascendant'
+
+    def __init__(self,
+                 key: int,
+                 color: Color = Color.WHITE,
+                 begin: typing.Optional[int] = None,
+                 end: typing.Optional[int] = None,
+                 ascendant: typing.Optional[mygraph.Vertex] = None) -> None:
+        super().__init__(key)
+        self.ascendant = ascendant
+        self.begin = begin
+        self.end = end
+        self.color = color
+
+
+class VertexQueue:
+    __slots__ = '_dequeue', '_size'
+
+    def __init__(self) -> None:
+        self._dequeue = collections.deque()
+        self._size = 0
+
+    def deque(self) -> typing.Union[BFSVertex, DFSVertex, mygraph.Vertex]:
+        result = self._dequeue.popleft()
+        self._size -= 1
+
+        return result
+
+    def queue(self,
+              item: typing.Union[BFSVertex, DFSVertex, mygraph.Vertex]) -> None:
+        self._dequeue.append(item)
+        self._size += 1
+
+    def is_empty(self) -> bool:
+        return self._size == 0
+
+
+class VertexStack(typing.Iterable):
+    __slots__ = '_dequeue', '_size'
+
+    def __init__(self) -> None:
+        self._dequeue = collections.deque()
+        self._size = 0
+
+    def __iter__(self) -> typing.Iterator[
+        typing.Union[BFSVertex, DFSVertex, mygraph.Vertex]]:
+        while not self.is_empty():
+            yield self.pop()
+
+    def pop(self) -> typing.Union[BFSVertex, DFSVertex, mygraph.Vertex]:
+        result = self._dequeue.pop()
+        self._size -= 1
+
+        return result
+
+    def push(self,
+             item: typing.Union[BFSVertex, DFSVertex, mygraph.Vertex]) -> None:
+        self._dequeue.append(item)
+        self._size += 1
+
+    def is_empty(self) -> bool:
+        return self._size == 0

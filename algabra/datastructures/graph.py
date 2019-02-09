@@ -30,8 +30,8 @@ class AdjacencyListGraph(GraphInterface, typing.Iterable):
         self._vertices = dict()
 
     def __iter__(self) -> typing.Iterator[Vertex]:
-        for vertex in self._vertices:
-            yield vertex
+        for key in self._vertices:
+            yield self._vertices[key].get_vertex()
 
     def add_vertex(self, vertex: Vertex) -> None:
         key = vertex.get_key()
