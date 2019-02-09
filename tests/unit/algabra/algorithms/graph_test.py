@@ -19,6 +19,19 @@ def _connect_every_vertex(graph: mygraph.GraphInterface,
                 graph.add_edge(vertex_row, vertex_column)
 
 
+def _connect_components(graph: mygraph.AdjacencyListGraph,
+                        components: typing.List[
+                            typing.Sequence[mygraph.Vertex]
+                        ]) -> None:
+    for component in components:
+        previous_key = None
+        for key in component:
+            if previous_key is not None:
+                graph.add_edge(previous_key, key)
+
+            previous_key = key
+
+
 class BreadthFirstSearchTestCase(unittest.TestCase):
 
     def test_search_shortest_path(self) -> None:
@@ -94,6 +107,31 @@ class DepthFirstSearchTestCase(unittest.TestCase):
         assert graph.get_vertex(5).ascendant is not None
         assert graph.get_vertex(6).ascendant.begin < graph.get_vertex(2).begin
         assert graph.get_vertex(6).ascendant.end > graph.get_vertex(2).end
+
+    def test_topological_sort_fails_with_cycles(self) -> None:
+        graph = mygraph.AdjacencyListGraph()
+
+        v = [graphsalgs.DFSVertex(key) for key in (0, 1, 2, 3, 4, 5)]
+        _connect_components(graph, [
+            (v[0], v[1]),
+            (v[1], v[2], v[3]),
+            (v[3], v[2], v[4], v[5]),
+        ])
+
+        with self.assertRaises(RuntimeError):
+            graphsalgs.topological_sort(graph)
+
+    def test_topological_sort(self) -> None:
+        graph = mygraph.AdjacencyListGraph()
+        v = [graphsalgs.DFSVertex(key) for key in (0, 1, 2, 3, 4, 5)]
+        _connect_components(graph, [
+            (v[1], v[2], v[3]),
+            (v[0], v[3]),
+            (v[4], v[5], v[3]),
+        ])
+
+        target_keys = graphsalgs.topological_sort(graph)
+        assert [4, 5, 0, 1, 2, 3] == target_keys
 
 
 if __name__ == '__main__':

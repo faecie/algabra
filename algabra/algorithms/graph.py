@@ -52,7 +52,15 @@ def shortest_path(graph: mygraph.AdjacencyListGraph, start_from: BFSVertex,
     return path
 
 
-def depth_first_search(graph: mygraph.AdjacencyListGraph) -> None:
+def depth_first_search(graph: mygraph.AdjacencyListGraph,
+                       vertex_visitor: typing.Optional[VertexVisitor] = None,
+                       edge_visitor: typing.Optional[EdgeVisitor] = None
+                       ) -> None:
+    if vertex_visitor is None:
+        vertex_visitor = VertexVisitor()
+    if edge_visitor is None:
+        edge_visitor = EdgeVisitor()
+
     order = 0
     ascendants = VertexStack()
     descendants = VertexStack()
@@ -65,9 +73,10 @@ def depth_first_search(graph: mygraph.AdjacencyListGraph) -> None:
             order += 1
             descendant = descendants.pop()
             descendant.begin = order
-            descendant.color = Color.GREY
+            vertex_visitor.start_visiting(descendant)
 
             for edge in graph.get_edges(descendant):
+                edge_visitor.visit(edge)
                 if edge.get_vertex().color == Color.WHITE:
                     edge.get_vertex().ascendant = descendant
                     descendants.push(edge.get_vertex())
@@ -76,9 +85,16 @@ def depth_first_search(graph: mygraph.AdjacencyListGraph) -> None:
 
         while not ascendants.is_empty():
             order += 1
-            predecessor = ascendants.pop()
-            predecessor.color = Color.BLACK
-            predecessor.end = order
+            ascendant = ascendants.pop()
+            ascendant.end = order
+            vertex_visitor.stop_visiting(ascendant)
+
+
+def topological_sort(graph: mygraph.AdjacencyListGraph) -> typing.List[int]:
+    vertex_visitor = TopologicalSortVertexVisitor()
+    edge_visitor = DAGEdgeVisitor()
+    depth_first_search(graph, vertex_visitor, edge_visitor)
+    return [vertex.get_key() for vertex in vertex_visitor.get_sorted()]
 
 
 class Color(enum.Enum):
@@ -115,6 +131,45 @@ class DFSVertex(mygraph.Vertex):
         self.begin = begin
         self.end = end
         self.color = color
+
+
+class VertexVisitor:
+    def start_visiting(self, vertex: DFSVertex) -> None:
+        vertex.color = Color.GREY
+
+    def stop_visiting(self, vertex: DFSVertex) -> None:
+        vertex.color = Color.BLACK
+
+
+class EdgeVisitor:
+    def visit(self, edge: mygraph.Edge) -> None:
+        return
+
+
+class DAGEdgeVisitor(EdgeVisitor):
+
+    def visit(self, edge: mygraph.Edge) -> None:
+        super().visit(edge)
+        vertex = edge.get_vertex()
+        if vertex.color == Color.GREY:
+            raise RuntimeError(
+                'Vertex %s has cycle reference.' % vertex.get_key())
+
+
+class TopologicalSortVertexVisitor(VertexVisitor):
+    __slots__ = '_vertex_stack'
+
+    def __init__(self) -> None:
+        super().__init__()
+        self._vertex_stack = VertexStack()
+
+    def stop_visiting(self, vertex: DFSVertex) -> None:
+        super().stop_visiting(vertex)
+        self._vertex_stack.push(vertex)
+
+    def get_sorted(self) -> typing.Iterator[DFSVertex]:
+        while not self._vertex_stack.is_empty():
+            yield self._vertex_stack.pop()
 
 
 class VertexQueue:
