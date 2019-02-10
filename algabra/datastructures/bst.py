@@ -57,15 +57,14 @@ class BinarySearchTree:
 
     def insert(self, node: Node) -> None:
         child = self._get_root()
-        parent = child.parent
+        parent = self._sentinel
 
         while child != self._sentinel:
             parent = child
             child = child.left if node.key < child.key else child.right
 
+        node.left = node.right = self._sentinel
         node.parent = parent
-        node.left = child
-        node.right = child
         if parent is self._sentinel or parent.key < node.key:
             parent.right = node
         else:
@@ -75,16 +74,16 @@ class BinarySearchTree:
 
     def delete(self, node: Node) -> None:
         if node.left is self._sentinel:
-            self._transplant(node, node.right)
+            self._replace(node, node.right)
         elif node.right is self._sentinel:
-            self._transplant(node, node.left)
+            self._replace(node, node.left)
         else:
             successor = self.minimum(node.right)
             if successor.parent is not node:
-                self._transplant(successor, successor.right)
+                self._replace(successor, successor.right)
                 successor.right = node.right
                 successor.right.parent = successor
-            self._transplant(node, successor)
+            self._replace(node, successor)
             successor.left = node.left
             successor.left.parent = successor
 
@@ -102,14 +101,14 @@ class BinarySearchTree:
     def _get_root(self) -> Node:
         return self._sentinel.right
 
-    def _transplant(self, node: Node, transplant: Node) -> None:
+    def _replace(self, node: Node, replacement: Node) -> None:
         if node is node.parent.left:
-            node.parent.left = transplant
+            node.parent.left = replacement
         else:
-            node.parent.right = transplant
+            node.parent.right = replacement
 
-        if transplant is not self._sentinel:
-            transplant.parent = node.parent
+        if replacement is not self._sentinel:
+            replacement.parent = node.parent
 
 
 class Node:
