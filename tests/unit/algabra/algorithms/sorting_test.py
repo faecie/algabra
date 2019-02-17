@@ -8,7 +8,7 @@ import algabra.algorithms.sorting as sorting
 
 class BaseSortingTests(abc.ABC):
 
-    def test_sorting(self, items_count: int = 100) -> None:
+    def test_sorting(self, items_count: int = 99) -> None:
         items = random.sample(list(range(items_count)), items_count)
         self._sort(items)
 
@@ -61,6 +61,12 @@ class MergeSortTestCase(BaseSortingTests, unittest.TestCase):
 
     def _sort(self, items: typing.MutableSequence) -> None:
         sorting.MergeSort.sort(items)
+
+
+class IterativeMergeSortTestCase(BaseSortingTests, unittest.TestCase):
+
+    def _sort(self, items: typing.MutableSequence) -> None:
+        sorting.IterativeMergeSort.sort(items)
 
 
 if __name__ == '__main__':

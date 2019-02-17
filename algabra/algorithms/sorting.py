@@ -131,3 +131,19 @@ class MergeSort(SortInterface):
             sorted_items_sequence[item_ix] = result_item
 
         items[start:stop + 1] = sorted_items_sequence
+
+
+class IterativeMergeSort(MergeSort):
+
+    @staticmethod
+    def sort(items: typing.MutableSequence):
+        step = 1
+        while step < len(items):
+            i = 0
+            while i <= len(items) - step:
+                middle = i + step
+                j = (middle + step) - 1
+                if middle < len(items) and items[middle] < items[middle - 1]:
+                    MergeSort._merge(items, i, middle, min(len(items) - 1, j))
+                i += step + step
+            step += step
