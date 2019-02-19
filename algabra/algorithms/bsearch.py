@@ -14,7 +14,10 @@ def binary_search(items: typing.Sequence, value: int) -> typing.Optional[int]:
     :return: The key of the value in the sequence or None if its not in it
     """
     first, last = 0, len(items) - 1
-    while last > first:
+    while last >= first:
+        if first == last:
+            return first if items[first] == value else None
+
         middle = last - math.floor((last - first) / 2)
 
         if items[middle] == value:
