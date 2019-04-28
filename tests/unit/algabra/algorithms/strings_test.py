@@ -28,5 +28,38 @@ class LCSTestCase(unittest.TestCase):
         assert result
 
 
+class FindEncodingsTest(unittest.TestCase):
+
+    def test_find_encoding_test1(self):
+        encodings = mystr.Encodings()
+        result = encodings.find_encodings(1234)
+
+        assert result == 3
+
+    def test_find_encoding_test2(self):
+        encodings = mystr.Encodings()
+        result = encodings.find_encodings(111)
+
+        assert result == 3
+
+    def test_find_encoding_test3(self):
+        encodings = mystr.Encodings()
+        result = encodings.find_encodings(1111)
+
+        assert result == 5
+
+    def test_find_encoding_test4(self):
+        encodings = mystr.Encodings()
+        result = encodings.find_encodings(111127)
+
+        assert result == 8
+
+    def test_find_encoding_test5(self):
+        encodings = mystr.Encodings()
+        result = encodings.find_encodings(5)
+
+        assert result == 1
+
+
 if __name__ == '__main__':
     unittest.main()

@@ -82,3 +82,34 @@ def longest_common_subsequence(s1, s2):
         ix1 = int(not ix1)
 
     return suffixes[int(not ix1)][ix2 - 1]
+
+
+class Encodings:
+    _DECIMAL = 10
+    _LAST_IN_ALPHABET = 26
+
+    def find_encodings(self, code: int) -> int:
+        """
+        Given a string of digits, count the number of possible decodings
+        
+        For example:
+        find_encodings('111') = 3, because '111' can be decoded as 'aaa', 'ak', 
+        'ka'.
+        find_encodings('1111') = 'aaaa', 'aka', 'kk', 'aak', 'kaa'
+        find_encodings('1234') = 3, because '1234' can be decoded as 'abcd', 
+        'lcd', 'awd'.
+        :param code: 
+        :return: 
+        """
+        code_str = str(code)
+        if len(code_str) == 0:
+            return 0
+
+        predecessors = [0, 1]
+        for ix in range(1, len(code_str)):
+            letter = int(code_str[ix - 1]) * self._DECIMAL + int(code_str[ix])
+            current = predecessors[-1] + (max(
+                predecessors[0], 1) if letter <= self._LAST_IN_ALPHABET else 0)
+            predecessors[0], predecessors[-1] = predecessors[-1], current
+
+        return predecessors[-1]
