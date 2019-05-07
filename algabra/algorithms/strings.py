@@ -1,3 +1,6 @@
+import collections
+
+
 def _decrease_counts(counts, freq):
     if counts[freq] == 1:
         del counts[freq]
@@ -15,13 +18,13 @@ def _increase_counts(counts, freq):
 
 
 def is_valid(s):
-    frequencies = dict()
-    counts = dict()
+    frequencies = collections.defaultdict(int)
+    counts = collections.defaultdict(int)
     for l in s:
         if l in frequencies:
             _decrease_counts(counts, frequencies[l])
-        frequencies[l] = frequencies[l] + 1 if l in frequencies else 1
-        _increase_counts(counts, frequencies[l])
+        frequencies[l] = frequencies[l] + 1
+        counts[frequencies[l]] += 1
     if len(counts) > 2:
         return 'NO'
     elif len(counts) <= 1:
@@ -31,7 +34,7 @@ def is_valid(s):
     for freq, count in counts.items():
         _decrease_counts(tmp, freq)
         if freq > 1:
-            _increase_counts(tmp, freq - 1)
+            tmp[freq - 1] += 1
         if len(tmp) <= 1:
             return 'YES'
         if freq > 1:
@@ -43,9 +46,8 @@ def is_valid(s):
 
 def anagram_count(n, s):
     count = n
-    i = 0
     next_length = 1
-    while i < n:
+    for i in range(n):
         if i + 1 < n and s[i + 1] == s[i]:
             next_length += 1
         elif i + 2 < n and s[i + 2] == s[i]:
@@ -62,7 +64,6 @@ def anagram_count(n, s):
         else:
             count += int((next_length * (next_length - 1)) / 2)
             next_length = 1
-        i += 1
     return count
 
 
