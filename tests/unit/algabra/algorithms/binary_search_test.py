@@ -27,7 +27,7 @@ class BinarySearchTestCase(unittest.TestCase):
         result = bsearch.binary_search([], 5)
         assert result is None
 
-    def test_search_in_empty_list(self) -> None:
+    def test_search_no_result(self) -> None:
         result = bsearch.binary_search([1, 2, 3, 4, 6], 5)
         assert result is None
 

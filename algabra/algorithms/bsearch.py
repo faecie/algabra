@@ -18,13 +18,13 @@ def binary_search(items: typing.Sequence, value: int) -> typing.Optional[int]:
         if first == last:
             return first if items[first] == value else None
 
-        middle = last - math.floor((last - first) / 2)
+        middle = last - math.ceil((last - first) / 2)
 
         if items[middle] == value:
             return middle
 
         if items[middle] < value:
-            first = middle
+            first = middle + 1
         else:
             last = middle - 1
 
