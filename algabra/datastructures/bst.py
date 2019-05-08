@@ -61,7 +61,7 @@ class BinarySearchTree:
 
         while child != self._sentinel:
             parent = child
-            child = child.left if node.key < child.key else child.right
+            child = parent.left if node.key < parent.key else parent.right
 
         node.left = node.right = self._sentinel
         node.parent = parent
@@ -111,11 +111,93 @@ class BinarySearchTree:
             replacement.parent = node.parent
 
 
+class AVLTree(BinarySearchTree):
+    MAX_HEIGHT_DELTA = 1
+    _ZERO_HEIGHT = 0
+
+    def insert(self, node: AVLNode) -> None:
+        super().insert(node)
+        self._balance(node.parent)
+
+    def delete(self, node: Node) -> None:
+        super().delete(node)
+        self._balance(node.parent)
+
+    def _balance(self, root: AVLNode) -> None:
+        while isinstance(root, AVLNode):
+            root.height = self._calculate_height(root)
+            balance = self._get_balance(root)
+            if balance > self.MAX_HEIGHT_DELTA:
+                if self._get_balance(root.left) < 0:
+                    self._rotate_left(root.left)
+                root = self._rotate_right(root)
+            if balance < -self.MAX_HEIGHT_DELTA:
+                if self._get_balance(root.right) > 0:
+                    self._rotate_right(root.right)
+                root = self._rotate_left(root)
+
+            root = root.parent
+
+    def _rotate_right(self, root: AVLNode) -> AVLNode:
+        if root.parent.left == root:
+            root.parent.left = root.left
+        else:
+            root.parent.right = root.left
+
+        root.parent, root.left.parent = root.left, root.parent
+        root.left.right, root.left = root, root.left.right
+
+        if isinstance(root.left, AVLNode):
+            root.left.parent = root
+
+        root.height = self._calculate_height(root)
+        root.parent.height = self._calculate_height(root.parent)
+
+        return root.parent
+
+    def _rotate_left(self, root: AVLNode) -> AVLNode:
+        if root.parent.left == root:
+            root.parent.left = root.right
+        else:
+            root.parent.right = root.right
+
+        root.right.parent, root.parent = root.parent, root.right
+        root.right.left, root.right = root, root.right.left
+
+        if isinstance(root.right, AVLNode):
+            root.right.parent = root
+
+        root.height = self._calculate_height(root)
+        root.parent.height = self._calculate_height(root.parent)
+
+        return root.parent
+
+    def _calculate_height(self, root: AVLNode) -> int:
+        return AVLNode.INITIAL_HEIGHT + max(
+            self._get_height(root.right), self._get_height(root.left))
+
+    def _get_height(self, node: Node) -> int:
+        return node.height if isinstance(node, AVLNode) else self._ZERO_HEIGHT
+
+    def _get_balance(self, node: AVLNode) -> int:
+        return self._get_height(node.left) - self._get_height(node.right)
+
+
 class Node:
     __slots__ = ['left', 'right', 'parent', 'key']
 
     def __init__(self, key: int = None) -> None:
         self.key = key
+
+
+class AVLNode(Node):
+    INITIAL_HEIGHT = 1
+
+    __slots__ = 'height'
+
+    def __init__(self, key: int = None) -> None:
+        super().__init__(key)
+        self.height = self.INITIAL_HEIGHT
 
 
 class SentinelNode(Node):

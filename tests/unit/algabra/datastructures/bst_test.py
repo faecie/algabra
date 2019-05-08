@@ -4,7 +4,7 @@ import random
 import algabra.datastructures.bst as bst
 
 
-class MyTestCase(unittest.TestCase):
+class BinarySearchTreeTestCase(unittest.TestCase):
 
     @staticmethod
     def create_bst(from_list: list):
@@ -65,6 +65,61 @@ class MyTestCase(unittest.TestCase):
 
         assert successor.key == 376
         assert predecessor.key == 242
+
+
+class AVLTreeTestCase(unittest.TestCase):
+
+    def test_insertion_left_right_case(self) -> None:
+        avl = bst.AVLTree()
+        keys = 10, 6, 11, 1, 8, 9
+        for key in keys:
+            avl.insert(bst.AVLNode(key))
+
+        assert self._tree_is_balanced(avl)
+
+    def test_insertion_left_case(self) -> None:
+        avl = bst.AVLTree()
+        keys = 10, 7, 4, 1, 5, 8, 11
+        for key in keys:
+            avl.insert(bst.AVLNode(key))
+
+        assert self._tree_is_balanced(avl)
+
+    def test_insertion_right_case(self) -> None:
+        avl = bst.AVLTree()
+        keys = 10, 9, 20, 15, 25, 21, 26
+        for key in keys:
+            avl.insert(bst.AVLNode(key))
+
+    def test_insertion_right_left_case(self) -> None:
+        avl = bst.AVLTree()
+        keys = 10, 9, 20, 15, 25, 14
+        for key in keys:
+            avl.insert(bst.AVLNode(key))
+
+        assert self._tree_is_balanced(avl)
+
+    def test_deletion(self) -> None:
+        avl = bst.AVLTree()
+        keys = 10, 9, 20, 15, 25, 26, 14
+        for key in keys:
+            avl.insert(bst.AVLNode(key))
+
+        node = avl.search(26)
+        avl.delete(node)
+
+        assert self._tree_is_balanced(avl)
+
+    def _tree_is_balanced(self, tree: bst.AVLTree) -> bool:
+        for node in tree:
+            try:
+                delta = abs(node.parent.left.height - node.parent.right.height)
+                if delta > bst.AVLTree.MAX_HEIGHT_DELTA:
+                    return False
+            except AttributeError:
+                pass
+
+        return True
 
 
 if __name__ == '__main__':
