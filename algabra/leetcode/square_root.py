@@ -48,10 +48,10 @@ class PerfectSquareRoot:
     def num_squares(self, n: int) -> int:
         if self._is_square(n):
             return SquareSum.ONE
-        if self.is_two_squares(n):
-            return SquareSum.TWO
         if self.is_four_squares(n):
             return SquareSum.FOUR
+        if self.is_two_squares(n):
+            return SquareSum.TWO
 
         return SquareSum.THREE
 
