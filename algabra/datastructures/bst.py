@@ -111,6 +111,42 @@ class BinarySearchTree:
             replacement.parent = node.parent
 
 
+class RightRotation(object):
+
+    @staticmethod
+    def rotate(root: Node) -> Node:
+        if root.parent.left == root:
+            root.parent.left = root.left
+        else:
+            root.parent.right = root.left
+
+        root.parent, root.left.parent = root.left, root.parent
+        root.left.right, root.left = root, root.left.right
+
+        if not isinstance(root.left, SentinelNode):
+            root.left.parent = root
+
+        return root.parent
+
+
+class LeftRotation(object):
+
+    @staticmethod
+    def rotate(root: Node) -> Node:
+        if root.parent.left == root:
+            root.parent.left = root.right
+        else:
+            root.parent.right = root.right
+
+        root.right.parent, root.parent = root.parent, root.right
+        root.right.left, root.right = root, root.right.left
+
+        if not isinstance(root.right, SentinelNode):
+            root.right.parent = root
+
+        return root.parent
+
+
 class AVLTree(BinarySearchTree):
     MAX_HEIGHT_DELTA = 1
     _ZERO_HEIGHT = 0
@@ -139,38 +175,18 @@ class AVLTree(BinarySearchTree):
             root = root.parent
 
     def _rotate_right(self, root: AVLNode) -> AVLNode:
-        if root.parent.left == root:
-            root.parent.left = root.left
-        else:
-            root.parent.right = root.left
-
-        root.parent, root.left.parent = root.left, root.parent
-        root.left.right, root.left = root, root.left.right
-
-        if isinstance(root.left, AVLNode):
-            root.left.parent = root
-
+        new_root = RightRotation.rotate(root)
         root.height = self._calculate_height(root)
-        root.parent.height = self._calculate_height(root.parent)
+        new_root.height = self._calculate_height(new_root)
 
-        return root.parent
+        return new_root
 
     def _rotate_left(self, root: AVLNode) -> AVLNode:
-        if root.parent.left == root:
-            root.parent.left = root.right
-        else:
-            root.parent.right = root.right
-
-        root.right.parent, root.parent = root.parent, root.right
-        root.right.left, root.right = root, root.right.left
-
-        if isinstance(root.right, AVLNode):
-            root.right.parent = root
-
+        new_root = LeftRotation.rotate(root)
         root.height = self._calculate_height(root)
-        root.parent.height = self._calculate_height(root.parent)
+        new_root.height = self._calculate_height(new_root)
 
-        return root.parent
+        return new_root
 
     def _calculate_height(self, root: AVLNode) -> int:
         return AVLNode.INITIAL_HEIGHT + max(
@@ -183,7 +199,10 @@ class AVLTree(BinarySearchTree):
         return self._get_height(node.left) - self._get_height(node.right)
 
 
-class Node:
+T = typing.TypeVar('T')
+
+
+class Node():
     __slots__ = ['left', 'right', 'parent', 'key']
 
     def __init__(self, key: int = None) -> None:
